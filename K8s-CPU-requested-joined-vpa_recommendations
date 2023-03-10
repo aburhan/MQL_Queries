@@ -1,0 +1,16 @@
+{ fetch k8s_container
+  | metric 'kubernetes.io/container/cpu/request_cores'
+  | group_by
+      [resource.project_id, resource.location, resource.cluster_name,
+       resource.namespace_name, controller_name: metadata.system.top_level_controller_name], [value_request_cores_mean: mean(value.request_cores)]
+; fetch k8s_scale
+  | metric
+      'kubernetes.io/autoscaler/container/cpu/per_replica_recommended_request_cores'
+  | group_by
+      [resource.project_id, resource.location, resource.cluster_name,
+       resource.namespace_name, controller_name: resource.controller_name],[value_per_replica_recommended_70_percentile:
+           percentile(value.per_replica_recommended_request_cores, 70)] 
+| within 3d
+}
+| join
+| filter (t_0.value_request_cores_mean < t_1.value_per_replica_recommended_70_percentile ) 
