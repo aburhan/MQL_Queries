@@ -1,0 +1,18 @@
+fetch k8s_container
+| { metric 'kubernetes.io/container/cpu/request_cores'
+    | filter
+        (resource.namespace_name != 'kube-system'
+         && resource.namespace_name != 'istio-system'
+         && resource.namespace_name != 'gatekeeper-system'
+         && resource.namespace_name != 'gke-system')
+    | within 1d
+    | group_by
+    [resource.project_id, resource.location, resource.cluster_name,
+     resource.namespace_name, metadata.system.top_level_controller_name],[v: mean(value.request_cores)]
+  ; metric 'kubernetes.io/container/cpu/core_usage_time'
+  | align rate(1w)
+  | group_by
+    [resource.project_id, resource.location, resource.cluster_name,
+     resource.namespace_name, metadata.system.top_level_controller_name], [v: percentile(value.core_usage_time, 70)] }
+| join
+| value t_1.v
