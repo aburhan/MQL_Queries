@@ -7,60 +7,16 @@
     "columns": 12,
     "tiles": [
       {
-        "height": 2,
-        "widget": {
-          "scorecard": {
-            "thresholds": [
-              {
-                "color": "RED",
-                "direction": "ABOVE",
-                "label": "",
-                "value": 0
-              }
-            ],
-            "timeSeriesQuery": {
-              "timeSeriesQueryLanguage": "fetch k8s_container\n| metric 'kubernetes.io/container/memory/request_bytes'\n| filter\n    (resource.namespace_name != 'kube-system'\n     && resource.namespace_name != 'istio-system'\n     && resource.namespace_name != 'gatekeeper-system'\n     && resource.namespace_name != 'gke-system')\n\n      | filter value.request_bytes == 0 \n| every 1m\n| group_by [resource.pod_name], [row_count: row_count()]\n| group_by [], [row_count_sum: sum(row_count)]"
-            }
-          },
-          "title": "# of pods without memory resources"
-        },
-        "width": 3,
-        "xPos": 3,
-        "yPos": 3
-      },
-      {
-        "height": 2,
-        "widget": {
-          "scorecard": {
-            "thresholds": [
-              {
-                "color": "RED",
-                "direction": "ABOVE",
-                "label": "",
-                "value": 0
-              }
-            ],
-            "timeSeriesQuery": {
-              "timeSeriesQueryLanguage": "fetch k8s_container\n| metric 'kubernetes.io/container/cpu/request_cores'\n| filter\n    (resource.namespace_name != 'kube-system'\n     && resource.namespace_name != 'istio-system'\n     && resource.namespace_name != 'gatekeeper-system'\n     && resource.namespace_name != 'gke-system')\n\n      | filter value.request_cores == 0 \n| every 1m\n| group_by [resource.pod_name], [row_count: row_count()]\n| group_by [], [row_count_sum: sum(row_count)]"
-            }
-          },
-          "title": "# of pods without CPU requested"
-        },
-        "width": 3,
-        "xPos": 9,
-        "yPos": 3
-      },
-      {
-        "height": 6,
+        "height": 4,
         "widget": {
           "collapsibleGroup": {
             "collapsed": false
           },
-          "title": "Best Effort workloads at risk"
+          "title": "Best Effort - CPU and memory not set"
         },
         "width": 12,
         "xPos": 0,
-        "yPos": 3
+        "yPos": 4
       },
       {
         "height": 4,
@@ -75,11 +31,11 @@
             ],
             "metricVisualization": "NUMBER"
           },
-          "title": "Performance risk - containers running above requested for CPU"
+          "title": "CPU (performance risk) - containers running above requested for CPU"
         },
         "width": 6,
         "xPos": 6,
-        "yPos": 11
+        "yPos": 8
       },
       {
         "height": 2,
@@ -116,55 +72,11 @@
             ],
             "metricVisualization": "NUMBER"
           },
-          "title": "Reliability risk - containers running above requested for memory"
+          "title": "Memory (reliability risk) - containers running above requested for memory"
         },
         "width": 6,
         "xPos": 0,
-        "yPos": 11
-      },
-      {
-        "height": 2,
-        "widget": {
-          "scorecard": {
-            "thresholds": [
-              {
-                "color": "YELLOW",
-                "direction": "ABOVE",
-                "label": "",
-                "value": 0
-              }
-            ],
-            "timeSeriesQuery": {
-              "timeSeriesQueryLanguage": "{ usage:\n    fetch k8s_container\n    | metric 'kubernetes.io/container/cpu/core_usage_time'\n    | filter\n        (resource.namespace_name != 'kube-system'\n         && resource.namespace_name != 'istio-system'\n         && resource.namespace_name != 'gatekeeper-system'\n         && resource.namespace_name != 'gke-system')\n    | align rate(1m)\n    | within 3d\n    | group_by [resource.cluster_name, resource.location, resource.project_id,metadata.system.top_level_controller_name ],\n        [value_core_usage_time_aggregate: percentile(value.core_usage_time, 70)]\n; requested:\n    fetch k8s_container\n    | metric 'kubernetes.io/container/cpu/request_cores'\n    | filter\n        (resource.namespace_name != 'kube-system'\n         && resource.namespace_name != 'istio-system'\n         && resource.namespace_name != 'gatekeeper-system'\n         && resource.namespace_name != 'gke-system')\n    | group_by [resource.cluster_name, resource.location, resource.project_id,metadata.system.top_level_controller_name ], [value_request_cores_mean: mean(value.request_cores)]\n    | filter value_request_cores_mean != 0 }\n| every 1m\n| join\n| filter\n    sub(requested.value_request_cores_mean,\n      usage.value_core_usage_time_aggregate) < 0\n| group_by [resource.cluster_name, resource.location, resource.project_id,metadata.system.top_level_controller_name ], [row_count: row_count()]\n| group_by [], [row_count_sum: sum(row_count)]\n| value row_count_sum"
-            }
-          },
-          "title": "CPU - workloads running above requested"
-        },
-        "width": 3,
-        "xPos": 6,
-        "yPos": 9
-      },
-      {
-        "height": 2,
-        "widget": {
-          "scorecard": {
-            "thresholds": [
-              {
-                "color": "RED",
-                "direction": "ABOVE",
-                "label": "",
-                "value": 0
-              }
-            ],
-            "timeSeriesQuery": {
-              "timeSeriesQueryLanguage": "{ usage:\n    fetch k8s_container\n    | metric 'kubernetes.io/container/memory/used_bytes'\n    | filter\n        (resource.namespace_name != 'kube-system'\n         && resource.namespace_name != 'istio-system'\n         && resource.namespace_name != 'gatekeeper-system'\n         && resource.namespace_name != 'gke-system')\n    | within 3d\n    | group_by\n        [resource.cluster_name, resource.location, resource.project_id,\n         metadata.system.top_level_controller_name],\n        [value_byte_usage_aggregate: percentile(value.used_bytes, 70)]\n; requested:\n    fetch k8s_container\n    | metric 'kubernetes.io/container/memory/request_bytes'\n    | filter\n        (resource.namespace_name != 'kube-system'\n         && resource.namespace_name != 'istio-system'\n         && resource.namespace_name != 'gatekeeper-system'\n         && resource.namespace_name != 'gke-system')\n    | group_by\n        [resource.cluster_name, resource.location, resource.project_id,\n         metadata.system.top_level_controller_name],\n        [value_request_bytes_mean: mean(value.request_bytes)]\n    | filter value_request_bytes_mean != 0 }\n| every 5m\n| join\n| filter\n    sub(requested.value_request_bytes_mean, usage.value_byte_usage_aggregate)\n    < 0\n| group_by\n    [resource.cluster_name, resource.location, resource.project_id,\n     metadata.system.top_level_controller_name],\n    [row_count: row_count()]\n| group_by [], [row_count_sum: sum(row_count)]\n| value row_count_sum\n"
-            }
-          },
-          "title": "Memory - workloads running above requested"
-        },
-        "width": 3,
-        "xPos": 0,
-        "yPos": 9
+        "yPos": 8
       },
       {
         "height": 2,
@@ -217,17 +129,17 @@
             "dataSets": [
               {
                 "timeSeriesQuery": {
-                  "timeSeriesQueryLanguage": "fetch k8s_container\n| metric 'kubernetes.io/container/memory/request_bytes'\n| filter (resource.namespace_name != 'kube-system'\n           && resource.namespace_name != 'istio-system'\n           && resource.namespace_name != 'gatekeeper-system'\n           && resource.namespace_name != 'gke-system')\n| every 1m\n| group_by\n    [resource.cluster_name, resource.location, resource.project_id,\n     metadata.system.top_level_controller_name],\n    [value_request_bytes_mean_mean: mean(value.request_bytes)]\n| filter value_request_bytes_mean_mean == 0 \n| group_by\n    [resource.cluster_name, resource.location, resource.project_id,\n     metadata.system.top_level_controller_name],\n    [row_count: row_count()]"
+                  "timeSeriesQueryLanguage": "fetch k8s_container\n| metric 'kubernetes.io/container/memory/request_bytes'\n| filter (resource.namespace_name != 'kube-system'\n           && resource.namespace_name != 'istio-system'\n           && resource.namespace_name != 'gatekeeper-system'\n           && resource.namespace_name != 'gke-system')\n| every 1m\n| group_by\n    [resource.cluster_name, resource.location, resource.project_id,\n     metadata.system.top_level_controller_name],\n    [value_request_bytes_mean_mean: mean(value.request_bytes)]\n| filter value_request_bytes_mean_mean == 0 \n| group_by\n    [resource.cluster_name, resource.location, resource.project_id,\n     metadata.system.top_level_controller_name],\n    [row_count: row_count()]\n"
                 }
               }
             ],
             "metricVisualization": "NUMBER"
           },
-          "title": "Best Effort (reliability risk) - containers without memory requested"
+          "title": "Memory (reliability risk) - containers without memory requested"
         },
         "width": 6,
         "xPos": 0,
-        "yPos": 5
+        "yPos": 4
       },
       {
         "height": 4,
@@ -242,11 +154,11 @@
             ],
             "metricVisualization": "NUMBER"
           },
-          "title": "Best Effort (reliability risk) - containers without CPU requested"
+          "title": "CPU (reliability risk) - containers without CPU requested"
         },
         "width": 6,
         "xPos": 6,
-        "yPos": 5
+        "yPos": 4
       },
       {
         "height": 2,
@@ -271,16 +183,16 @@
         "yPos": 1
       },
       {
-        "height": 6,
+        "height": 4,
         "widget": {
           "collapsibleGroup": {
             "collapsed": false
           },
-          "title": "Burstable workloads at risk"
+          "title": "Burstable - running above request more than 30% of the time"
         },
         "width": 12,
         "xPos": 0,
-        "yPos": 9
+        "yPos": 8
       },
       {
         "height": 2,
@@ -296,20 +208,20 @@
         },
         "width": 2,
         "xPos": 2,
-        "yPos": 1
+        "yPos": 0
       },
       {
-        "height": 2,
+        "height": 4,
         "widget": {
           "text": {
-            "content": "[Right-size your GKE workloads at scale](Link to Blog)\n",
+            "content": "[Set appropriate resource requests and limits](https://cloud.google.com/architecture/best-practices-for-running-cost-effective-kubernetes-applications-on-gke#set_appropriate_resource_requests_and_limits) - When **memory** isn't set and guaranteed, *kubelet* can **kill your Pods, at any time, and mark them as failed** . \n- When **CPU** isn't set, containers can be **throttled to 0 causing your workloads to become unresponsive** .\n\n\nGet started rightsizing your containers today!\n[Right-size your GKE workloads at scale](http://cloud-blog-link)\n\n",
             "format": "MARKDOWN"
           },
-          "title": "What to see container recommendations?"
+          "title": "Want to see container recommendations?"
         },
         "width": 2,
         "xPos": 0,
-        "yPos": 1
+        "yPos": 0
       },
       {
         "height": 1,
@@ -331,7 +243,7 @@
             "content": "",
             "format": "RAW"
           },
-          "title": "Best Effort workloads with reliability risk"
+          "title": "Best Effort pod with reliability risk"
         },
         "width": 4,
         "xPos": 4,
@@ -340,103 +252,15 @@
       {
         "height": 2,
         "widget": {
-          "scorecard": {
-            "thresholds": [
-              {
-                "color": "RED",
-                "direction": "ABOVE",
-                "label": "",
-                "value": 0
-              }
-            ],
-            "timeSeriesQuery": {
-              "timeSeriesQueryLanguage": "fetch k8s_container\n| metric 'kubernetes.io/container/memory/request_bytes'\n| filter\n    (resource.namespace_name != 'kube-system'\n     && resource.namespace_name != 'istio-system'\n     && resource.namespace_name != 'gatekeeper-system'\n     && resource.namespace_name != 'gke-system')\n| group_by [project_id, location, cluster_name,metadata.system.top_level_controller_name]\n| filter value_request_bytes_aggregate == 0\n| group_by [], [row_count_sum: row_count()]"
-            }
-          },
-          "title": "# of containers without memory resources"
-        },
-        "width": 3,
-        "xPos": 0,
-        "yPos": 3
-      },
-      {
-        "height": 2,
-        "widget": {
-          "scorecard": {
-            "thresholds": [
-              {
-                "color": "RED",
-                "direction": "ABOVE",
-                "label": "",
-                "value": 0
-              }
-            ],
-            "timeSeriesQuery": {
-              "timeSeriesQueryLanguage": "fetch k8s_container\n| metric 'kubernetes.io/container/cpu/request_cores'\n| filter\n    (resource.namespace_name != 'kube-system'\n     && resource.namespace_name != 'istio-system'\n     && resource.namespace_name != 'gatekeeper-system'\n     && resource.namespace_name != 'gke-system')\n| group_by [project_id, location, cluster_name,metadata.system.top_level_controller_name]\n| filter value_request_cores_aggregate == 0\n| group_by [], [row_count_sum: row_count()]"
-            }
-          },
-          "title": "# of containers without CPU resources requested"
-        },
-        "width": 3,
-        "xPos": 6,
-        "yPos": 3
-      },
-      {
-        "height": 2,
-        "widget": {
-          "scorecard": {
-            "thresholds": [
-              {
-                "color": "YELLOW",
-                "direction": "ABOVE",
-                "label": "",
-                "value": 0
-              }
-            ],
-            "timeSeriesQuery": {
-              "timeSeriesQueryLanguage": "{ usage:\n    fetch k8s_container\n    | metric 'kubernetes.io/container/cpu/core_usage_time'\n    | filter\n        (resource.namespace_name != 'kube-system'\n         && resource.namespace_name != 'istio-system'\n         && resource.namespace_name != 'gatekeeper-system'\n         && resource.namespace_name != 'gke-system')\n    | align rate(1m)\n    | within 3d\n    | group_by [pod_name],\n        [value_core_usage_time_aggregate: percentile(value.core_usage_time, 70)]\n; requested:\n    fetch k8s_container\n    | metric 'kubernetes.io/container/cpu/request_cores'\n    | filter\n        (resource.namespace_name != 'kube-system'\n         && resource.namespace_name != 'istio-system'\n         && resource.namespace_name != 'gatekeeper-system'\n         && resource.namespace_name != 'gke-system')\n    | group_by [pod_name], [value_request_cores_mean: mean(value.request_cores)]\n    | filter value_request_cores_mean != 0 }\n| every 1m\n| window 3d\n| join\n| filter\n    sub(requested.value_request_cores_mean,\n      usage.value_core_usage_time_aggregate) < 0\n| group_by [pod_name], [row_count: row_count()]\n| group_by [], [row_count_sum: sum(row_count)]\n| value row_count_sum"
-            }
-          },
-          "title": "CPU - pods running above requested"
-        },
-        "width": 3,
-        "xPos": 9,
-        "yPos": 9
-      },
-      {
-        "height": 2,
-        "widget": {
-          "scorecard": {
-            "thresholds": [
-              {
-                "color": "RED",
-                "direction": "ABOVE",
-                "label": "",
-                "value": 0
-              }
-            ],
-            "timeSeriesQuery": {
-              "timeSeriesQueryLanguage": "{ usage:\n    fetch k8s_container\n    | metric 'kubernetes.io/container/memory/used_bytes'\n    | filter\n        (resource.namespace_name != 'kube-system'\n         && resource.namespace_name != 'istio-system'\n         && resource.namespace_name != 'gatekeeper-system'\n         && resource.namespace_name != 'gke-system')\n    | within 3d\n    | group_by [pod_name],\n        [value_byte_usage_aggregate: percentile(value.used_bytes, 70)]\n; requested:\n    fetch k8s_container\n    | metric 'kubernetes.io/container/memory/request_bytes'\n    | filter\n        (resource.namespace_name != 'kube-system'\n         && resource.namespace_name != 'istio-system'\n         && resource.namespace_name != 'gatekeeper-system'\n         && resource.namespace_name != 'gke-system')\n    | group_by [pod_name], [value_request_bytes_mean: mean(value.request_bytes)]\n    | filter value_request_bytes_mean != 0 }\n| every 5m\n| join\n| filter\n    sub(requested.value_request_bytes_mean, usage.value_byte_usage_aggregate)\n    < 0\n| group_by [pod_name], [row_count: row_count()]\n| group_by [], [row_count_sum: sum(row_count)]\n| value row_count_sum"
-            }
-          },
-          "title": "Memory - pods running above requested"
-        },
-        "width": 3,
-        "xPos": 3,
-        "yPos": 9
-      },
-      {
-        "height": 1,
-        "widget": {
           "text": {
-            "content": "",
-            "format": "RAW"
+            "content": "**Red** - Danger of a reliability risk.  \n**Yellow** - Warning of a performance risk.\n",
+            "format": "MARKDOWN"
           },
-          "title": "Workload at risk"
+          "title": "Dashboard key"
         },
-        "width": 4,
-        "xPos": 0,
-        "yPos": 0
+        "width": 2,
+        "xPos": 2,
+        "yPos": 2
       }
     ]
   }
