@@ -320,25 +320,6 @@
         "width": 6,
         "xPos": 0,
         "yPos": 8
-      },
-      {
-        "height": 4,
-        "widget": {
-          "timeSeriesTable": {
-            "dataSets": [
-              {
-                "timeSeriesQuery": {
-                  "timeSeriesQueryLanguage": "{ all_non_besteffort_workloads:\n    fetch k8s_container\n    | metric 'kubernetes.io/container/cpu/request_cores'\n| ${project_id}\n| ${location}\n| ${cluster_name}\n| ${namespace_name}\n| ${top_level_controller_name}\n| ${top_level_controller_type}\n    | filter\n        (resource.namespace_name != 'kube-system'\n         && resource.namespace_name != 'istio-system')\n    | group_by 1d, [value_request_cores_mean: mean(value.request_cores)]\n    | every 1d\n    | group_by\n        [resource.project_id, resource.location, resource.cluster_name,\n         resource.namespace_name,\n         metadata.system.top_level_controller_name:\n           metadata.system_labels.top_level_controller_name,\n         metadata.system.top_level_controller_type:\n           metadata.system_labels.top_level_controller_type]\n           ,[value_request_cores_mean_aggregate: mean(value_request_cores_mean)]\n    | filter value_request_cores_mean_aggregate != 0\n    | group_by [], [row_count: row_count()]\n; burstable_workload_risk:\n    fetch k8s_container\n    | metric 'kubernetes.io/container/cpu/request_utilization'\n| ${project_id}\n| ${location}\n| ${cluster_name}\n| ${namespace_name}\n| ${top_level_controller_name}\n| ${top_level_controller_type}\n    | filter (resource.namespace_name != 'kube-system')\n    | group_by 1d,\n        [value_request_utilization_mean: mean(value.request_utilization)]\n    | every 1d\n    | group_by\n        [resource.project_id, resource.location, resource.cluster_name,\n         resource.namespace_name,\n         metadata.system.top_level_controller_name:\n           metadata.system_labels.top_level_controller_name,\n         metadata.system.top_level_controller_type:\n           metadata.system_labels.top_level_controller_type], [value_request_utilization_mean_aggregate:\n       aggregate(value_request_utilization_mean)]\n    | filter value_request_utilization_mean_aggregate > 1 \n    | group_by [], [row_count: row_count()]}\n| join\n| value\n[v_0:\n       scale(div(burstable_workload_risk.row_count, all_non_besteffort_workloads.row_count),\n         '%')]"
-                }
-              }
-            ],
-            "metricVisualization": "NUMBER"
-          },
-          "title": "VM Instance - CPU utilization [MEAN]"
-        },
-        "width": 6,
-        "xPos": 0,
-        "yPos": 12
       }
     ]
   },
