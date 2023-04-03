@@ -56,7 +56,7 @@
           "title": "Total Workloads"
         },
         "width": 2,
-        "xPos": 2,
+        "xPos": 8,
         "yPos": 0
       },
       {
@@ -102,7 +102,7 @@
           "title": "% of workloads without memory requested"
         },
         "width": 2,
-        "xPos": 4,
+        "xPos": 0,
         "yPos": 2
       },
       {
@@ -124,20 +124,20 @@
           "title": "% of workloads without CPU requested"
         },
         "width": 2,
-        "xPos": 6,
+        "xPos": 2,
         "yPos": 2
       },
       {
         "height": 2,
         "widget": {
           "text": {
-            "content": "**Reliability Risk**: kubelet can stop your Pods, at any time, and mark them as failed and CPU can be throttled to 0 causing your workloads to become unresponsive.  [Set appropriate resource requests and limits](https://cloud.google.com/architecture/best-practices-for-running-cost-effective-kubernetes-applications-on-gke#set_appropriate_resource_requests_and_limits)",
+            "content": "**Reliability Risk**: For memory: kubelet can stop your Pods, at any time, and mark them as failed. For CPU: can be throttled to 0 causing your workloads to become unresponsive.  [Set appropriate resource requests and limits](https://cloud.google.com/architecture/best-practices-for-running-cost-effective-kubernetes-applications-on-gke#set_appropriate_resource_requests_and_limits)",
             "format": "MARKDOWN"
           },
           "title": "Best Effort workloads at risk"
         },
         "width": 4,
-        "xPos": 4,
+        "xPos": 0,
         "yPos": 0
       },
       {
@@ -150,7 +150,7 @@
           "title": "Want to see workload recommendations?"
         },
         "width": 2,
-        "xPos": 0,
+        "xPos": 10,
         "yPos": 0
       },
       {
@@ -163,20 +163,20 @@
           "title": "Dashboard Legend"
         },
         "width": 2,
-        "xPos": 2,
+        "xPos": 8,
         "yPos": 2
       },
       {
         "height": 2,
         "widget": {
           "text": {
-            "content": "**Performance/Reliability Risk**: Can cause workloads to slow down or become unresponsive and can cause applications to terminate with an out of memory (OOM) error. [Set appropriate resource requests and limits](https://cloud.google.com/architecture/best-practices-for-running-cost-effective-kubernetes-applications-on-gke#set_appropriate_resource_requests_and_limits)\n",
+            "content": "**Performance/Reliability Risk**: For memory: when workload are running above requests, it has the same problem as best effort pods (can be killed at any time). For CPU: when workload are running above requests, slowing down the workload\n [Set appropriate resource requests and limits](https://cloud.google.com/architecture/best-practices-for-running-cost-effective-kubernetes-applications-on-gke#set_appropriate_resource_requests_and_limits)\n",
             "format": "MARKDOWN"
           },
           "title": "Burstable workloads at risk"
         },
         "width": 4,
-        "xPos": 8,
+        "xPos": 4,
         "yPos": 0
       },
       {
@@ -198,7 +198,7 @@
           "title": "% of workloads CPU running above requested"
         },
         "width": 2,
-        "xPos": 10,
+        "xPos": 6,
         "yPos": 2
       },
       {
@@ -220,7 +220,7 @@
           "title": "% of workloads memory running above requested"
         },
         "width": 2,
-        "xPos": 8,
+        "xPos": 4,
         "yPos": 2
       },
       {
